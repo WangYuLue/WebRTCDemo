@@ -1,0 +1,16 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var dd = prompt("输入房间号:");
+    var socket = io('http://localhost:8888');
+    socket.on('msg',function(data){
+        console.log(data)
+    })
+    socket.emit('join',dd)
+    socket.on('bb',function(data){
+        console.log("recive datas:"+data)
+    })
+
+    function oo (v){
+        socket.emit('aa',{rooms:dd,data:v})
+    }
+</script>
