@@ -21,13 +21,12 @@ function hander (req,res) {
 
 io.on("connection",function(socket){
     socket.emit("msg",{someMsg:123})
-    socket.on("aa",function(data){
+    socket.on("send",function(data){
+        console.log(data)
         var temp = io.to(data.rooms)
-        console.log(temp);
-        temp.emit("bb",data.data);
+        temp.emit("send",data.data);
     })
     socket.on('join',function(data){
-        console.log(data+"=======")
         socket.join(data)
     })
 })
