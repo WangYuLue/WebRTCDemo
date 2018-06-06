@@ -1,3 +1,7 @@
+## 简单测试一下webrtc
+
+## 注意事项
+
 1、当 `pc.addStream(s);` 后，`pc.createOffe()`就不再需要 `{offerToReceiveVideo: 1}` ，参考 `../wang-02/index.html` 里提出的疑惑。
 
 ```js
@@ -44,3 +48,5 @@ var clientsInRoom = io.sockets.adapter.rooms['test'];
 var numClients = clientsInRoom ? Object.keys(clientsInRoom.sockets).length : 0;
 ```
 其中：关闭浏览器的一个窗口，成员数会相应减少。
+
+3、`getUserMedia()` 只能在安全的域名下运行。
