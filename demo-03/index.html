@@ -1,0 +1,81 @@
+
+<head>
+    <meta charset="utf-8">
+</head>
+<video id='v' autoplay></video>
+<video id='vr' autoplay></video>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+    var wanger = console.log;
+    console.log = (...a) =>{
+        wanger(Date.now(),...a)
+    }
+
+    var socket = io('http://localhost:8888');
+    var isInit ;
+    var peerConnection ;
+    function message(d){
+        socket.emit('message',d)
+    }
+    socket.on('message',(d) => {
+        console.log(d);
+        if(d==='start'){
+            console.log('start');
+            peerConnection.createOffer().then((a)=>{
+                console.log(a)
+                peerConnection.setLocalDescription(a);
+                socket.emit('message',{type:'sendOffer',data:a})
+            })
+        }else if(d.type === 'sendOffer'){
+            console.log('sendOffer');
+            peerConnection.setRemoteDescription(d.data);
+            peerConnection.createAnswer().then((s)=>{
+                peerConnection.setLocalDescription(s);
+                socket.emit('message',{type:'sendAnswer',data:s})
+            })
+        }else if(d.type === 'sendAnswer'){
+            console.log("sendAnswer")
+            peerConnection.setRemoteDescription(d.data)
+        }else if(d.type === 'candidate'){
+            var candidate = new RTCIceCandidate({
+                sdpMLineIndex: d.label,
+                candidate: d.candidate
+            });
+            peerConnection.addIceCandidate(candidate);
+        }
+    })
+    socket.on('isInit',(d) => {
+        console.log(d)
+        isInit = d;
+    })
+    navigator.mediaDevices.getUserMedia({video:true}).then((s)=>{
+        document.getElementById('v').srcObject = s;
+        return s
+    }).then((s)=>{
+        peerConnection = new RTCPeerConnection();
+        peerConnection.onicecandidate = (s)=> {
+            console.log("触发了：",s);
+
+            if(s.candidate){
+                socket.emit('message',{
+                    type:'candidate' ,
+                    label: s.candidate.sdpMLineIndex,
+                    id: s.candidate.sdpMid,
+                    candidate: s.candidate.candidate
+                })
+            } else {
+                console.log('onicecandidate 无效')
+            }
+
+        }
+        peerConnection.onaddstream = (d)=>{
+            console.log("添加视频流了：",d);
+            document.getElementById('vr').srcObject = d.stream;
+        }
+        peerConnection.addStream(s);
+        if(!isInit){
+            socket.emit('message','start')
+        }
+    })
+</script>
