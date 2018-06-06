@@ -12,7 +12,8 @@
         wanger(Date.now(),...a)
     }
 
-    var socket = io('http://localhost:8888');
+    //var socket = io('http://localhost:8888');
+    var socket = io();
     var pc_config = {'iceServers': [{'url': 'turn:peer.eztest.org', 'username': 'eztest', 'credential': 'eztest-pass-1234'}]};
     var pc_constraints = {
     'optional': [
