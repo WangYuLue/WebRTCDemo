@@ -13,7 +13,9 @@
     }
 
     //var socket = io('http://localhost:8888');
-    var socket = io();
+
+    //下面加上 {transports: ['polling']} 是因为 connection may have failed (caused by proxy, firewall, browser, ...)
+    var socket = io(location.href,{transports: ['polling']});
     var pc_config = {'iceServers': [{'url': 'turn:peer.eztest.org', 'username': 'eztest', 'credential': 'eztest-pass-1234'}]};
     var pc_constraints = {
     'optional': [
