@@ -4,7 +4,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
     var dd = prompt("输入房间号:");
-    var socket = io(); //也可以用下面这种
+    var socket = io(location.href, {transports: ['websocket']}); //也可以用下面这种
     //var socket = io('http://localhost:8888');
     socket.on('msg',function(data){
         console.log(data)
