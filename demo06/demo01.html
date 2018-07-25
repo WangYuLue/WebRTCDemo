@@ -1,0 +1,52 @@
+<head>
+    <meta charset="utf-8"/>
+</head>
+<div>
+    <video id='v' autoplay></video>
+</div>
+<script src="../socket.io.js"></script>
+<script>
+    var peerConnection = null;
+    var socket = io('http://localhost:8989',{
+        path:'/manage'
+    });
+    var pc_config = {'iceServers': [{'url': 'turn:peer.eztest.org', 'username': 'eztest', 'credential': 'eztest-pass-1234'}]};
+    var pc_constraints = {
+    'optional': [
+        {'DtlsSrtpKeyAgreement': true}
+    ]};
+
+    socket.on('hello', function (data) {
+        console.log(data);
+    });
+
+    peerConnection = new RTCPeerConnection(pc_config, pc_constraints);
+
+    peerConnection.onicecandidate = (s)=> {
+        console.log("触发了：",s);
+        if(s.candidate){
+            socket.emit('candidate',s.candidate)
+        } else {
+            console.log('onicecandidate 无效')
+        }
+    }
+    peerConnection.onaddstream = (d)=>{
+        console.log("添加视频流了：",d);
+        document.getElementById('v').srcObject = d.stream;
+    }
+
+    socket.on('candidate',function(data){
+        console.log('add candidate',data);
+        peerConnection.addIceCandidate(data)
+    })
+
+    socket.on('offer',function(data){
+        console.log('offer request',data);
+        peerConnection.setRemoteDescription(data);
+        peerConnection.createAnswer().then((s)=>{
+            peerConnection.setLocalDescription(s);
+            console.log(s)
+            socket.emit('answer',s)
+        })
+    })
+</script>
