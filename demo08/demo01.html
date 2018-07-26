@@ -19,13 +19,15 @@
 
     function start(){
         socket.emit("start")
-        create();
     }
 
+    socket.on('reply',function(data){
+        create();
+    })
     
 
     function create (stream) {
-        peer = new Peer()
+        var peer = new Peer()
 
         peer.on('signal', function (data) {
             socket.emit('message',data)
@@ -33,9 +35,10 @@
         })
 
         socket.on('message',function(data){
+            console.log('message',data);
             peer.signal(data)
         })
-        
+
         peer.on('stream', function (stream) {
             console.log(stream)
             var video = document.createElement('video');

@@ -13,8 +13,11 @@
     socket.on("start",start);
 
     function start () {
-        console.log("start.....")
+        console.log("start.......")
         peer = new Peer({ initiator: true, stream: localstream })
+        
+        //告诉管理端本地peer建好了
+        socket.emit("reply",peer._id);
 
         peer.on('signal', function (data) {
             socket.emit('message',data)
@@ -29,6 +32,7 @@
         })
 
         socket.on('message',function(data){
+            console.log('message',data);
             peer.signal(data)
         })
     }

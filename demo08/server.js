@@ -16,6 +16,10 @@ io.on('connection', function (socket) {
   socket.on('create',(d)=>{
     io_manage.emit('create',d)
   })
+
+  socket.on('reply',(d)=>{
+    io_manage.emit('reply',d)
+  })
 });
 
 //管理端
