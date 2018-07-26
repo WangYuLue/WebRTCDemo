@@ -1,0 +1,40 @@
+<div>
+    <video></video>
+</div>
+<script src="./js/simplepeer.min.js"></script>
+<script src="./js/socket.io.js"></script>
+<script>
+    var Peer = SimplePeer ;
+    var peer = null ;
+
+    var socket = io('http://localhost:8999',{
+        path:'/manage'
+    });
+
+    // socket.on('create',function(){
+    //     console.log("create message")
+    //     create();
+    // })
+    create();
+
+    function create (stream) {
+        peer = new Peer()
+
+        peer.on('signal', function (data) {
+            socket.emit('message',data)
+           // peer2.signal(data)
+        })
+        
+        socket.on('message',function(data){
+            peer.signal(data)
+        })
+
+        peer.on('stream', function (stream) {
+            console.log(stream)
+            // got remote video stream, now let's show it in a video tag
+            var video = document.querySelector('video')
+            video.srcObject = stream
+            video.play()
+        })
+    }
+</script>

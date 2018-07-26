@@ -1,0 +1,35 @@
+<div>
+    <video></video>
+</div>
+<script src="./js/simplepeer.min.js"></script>
+<script src="./js/socket.io.js"></script>
+<script>
+    var Peer = SimplePeer ;
+    var peer = null ;
+
+    var socket = io('http://localhost:8999');
+
+    
+
+    navigator.getUserMedia({ video: true, audio: true }, gotMedia, function () {})
+
+    function gotMedia (stream) {
+        // socket.emit("create")
+        playVideo(stream)
+        peer = new Peer({ initiator: true, stream: stream })
+
+        peer.on('signal', function (data) {
+            socket.emit('message',data)
+            // peer2.signal(data)
+        })
+        socket.on('message',function(data){
+            peer.signal(data)
+        })
+    }
+
+    function playVideo (stream) {
+        var video = document.querySelector('video')
+        video.srcObject = stream
+        video.play()
+    }
+</script>
