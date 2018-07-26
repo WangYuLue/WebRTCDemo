@@ -6,6 +6,7 @@
 <script>
     var Peer = SimplePeer ;
     var peers = {} ;
+    var local_remote_peers = {} ; //远程与本地的一一对照表
 
     var socket = io('http://localhost:8999',{
         path:'/manage'
@@ -22,21 +23,24 @@
     }
 
     socket.on('reply',function(data){
-        create();
+        //此处的data里是远程peer的信息
+        console.log("reply",data)
+        create(data);
     })
     
+    socket.on('message',function(data){
+        console.log('message',data);
+        peers[local_remote_peers[data.id]].signal(data.data);
+    })
 
-    function create (stream) {
+    function create (remote_data) {
         var peer = new Peer()
+        
+        local_remote_peers[remote_data.id] = peer._id ;
 
         peer.on('signal', function (data) {
             socket.emit('message',data)
            // peer2.signal(data)
-        })
-
-        socket.on('message',function(data){
-            console.log('message',data);
-            peer.signal(data)
         })
 
         peer.on('stream', function (stream) {

@@ -17,10 +17,15 @@
         peer = new Peer({ initiator: true, stream: localstream })
         
         //告诉管理端本地peer建好了
-        socket.emit("reply",peer._id);
+        socket.emit("reply",{
+            id:peer._id
+        });
 
         peer.on('signal', function (data) {
-            socket.emit('message',data)
+            socket.emit('message',{
+                data:data,
+                id:peer._id
+            })
             // peer2.signal(data)
         })
 
