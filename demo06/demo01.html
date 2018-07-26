@@ -1,12 +1,13 @@
 <head>
     <meta charset="utf-8"/>
 </head>
-<div>
-    <video id='v' autoplay></video>
+<div id='container'>
+    <!-- <video id='v' autoplay></video> -->
 </div>
 <script src="../socket.io.js"></script>
 <script>
     var peerConnection = null;
+    var stream = null;
     var socket = io('http://localhost:8989',{
         path:'/manage'
     });
@@ -32,7 +33,21 @@
     }
     peerConnection.onaddstream = (d)=>{
         console.log("添加视频流了：",d);
-        document.getElementById('v').srcObject = d.stream;
+        stream = d.stream;
+
+        var video = document.createElement('video') ;
+        video.autoplay = true ;
+        video.srcObject = d.stream;
+        document.getElementById('container').appendChild(video);
+    //    document.getElementById('v').srcObject = d.stream;
+    }
+
+    peerConnection.onremovestream = (d)=>{
+        console.log("视频流被删除",d)
+    }
+
+    peerConnection.onconnectionstatechange = (s) =>{
+        console.log("connectionstatechange:",s)
     }
 
     socket.on('candidate',function(data){
@@ -49,4 +64,6 @@
             socket.emit('answer',s)
         })
     })
+
+    socket.emit('start')
 </script>

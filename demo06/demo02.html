@@ -7,6 +7,7 @@
 <script src="../socket.io.js"></script>
 <script>
     var peerConnection = null;
+    var stream = null;
     var socket = io('http://localhost:8989');
     var pc_config = {'iceServers': [{'url': 'turn:peer.eztest.org', 'username': 'eztest', 'credential': 'eztest-pass-1234'}]};
     var pc_constraints = {
@@ -20,32 +21,40 @@
 
     socket.on('hello', function (data) {
         console.log(data);
-        start();
+        init();
     });
 
-    function start () {
+    function init () {
         navigator.mediaDevices.getUserMedia({video:true,audio:true}).then((s)=>{
             document.getElementById('v').srcObject = s;
+            stream = s ;
             return s ;
-        }).then((s)=>{
-            peerConnection = new RTCPeerConnection(pc_config, pc_constraints);
-            peerConnection.onicecandidate = (s)=> {
-                console.log("触发了：",s);
-                if(s.candidate){
-                    socket.emit('candidate',s.candidate)
-                } else {
-                    console.log('onicecandidate 无效')
-                }
-            }
-            peerConnection.addStream(s);
-            peerConnection.createOffer().then((a)=>{
-                console.log('createoffer success',a)
-                peerConnection.setLocalDescription(a);
-                socket.emit('offer',a)
-            })
         })
     }
     
+    function start () {
+        peerConnection = new RTCPeerConnection(pc_config, pc_constraints);
+        peerConnection.onicecandidate = (s)=> {
+            console.log("触发了：",s);
+            if(s.candidate){
+                socket.emit('candidate',s.candidate)
+            } else {
+                console.log('onicecandidate 无效')
+            }
+        }
+        peerConnection.addStream(stream);
+        peerConnection.createOffer().then((a)=>{
+            console.log('createoffer success',a)
+            peerConnection.setLocalDescription(a);
+            socket.emit('offer',a)
+        })
+    }
+
+    socket.on('start',function(data){
+        console.log('recive connect',data);
+        start();
+    })
+
     socket.on('candidate',function(data){
         console.log('add candidate',data);
         peerConnection.addIceCandidate(data)

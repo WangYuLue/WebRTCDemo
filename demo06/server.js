@@ -47,4 +47,8 @@ io_manage.on('connection', function (socket) {
   socket.on('answer',(d)=>{
     io.emit('answer',d)
   })
+  //发送连接请求
+  socket.on('start',(d)=>{
+    io.emit('start',d)
+  })
 });
