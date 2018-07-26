@@ -5,26 +5,40 @@
 <script src="./js/socket.io.js"></script>
 <script>
     var Peer = SimplePeer ;
+    var localstream = null ;
     var peer = null ;
 
     var socket = io('http://localhost:8999');
 
-    
+    socket.on("start",start);
+
+    function start () {
+        console.log("start.....")
+        peer = new Peer({ initiator: true, stream: localstream })
+
+        peer.on('signal', function (data) {
+            socket.emit('message',data)
+            // peer2.signal(data)
+        })
+
+        peer.on('connect', function (e) {
+            console.log("can connect",e)
+        })
+        peer.on('close', function (e) {
+            console.log("connection close",e)
+        })
+
+        socket.on('message',function(data){
+            peer.signal(data)
+        })
+    }
 
     navigator.getUserMedia({ video: true, audio: true }, gotMedia, function () {})
 
     function gotMedia (stream) {
         // socket.emit("create")
         playVideo(stream)
-        peer = new Peer({ initiator: true, stream: stream })
-
-        peer.on('signal', function (data) {
-            socket.emit('message',data)
-            // peer2.signal(data)
-        })
-        socket.on('message',function(data){
-            peer.signal(data)
-        })
+        localstream = stream;
     }
 
     function playVideo (stream) {
