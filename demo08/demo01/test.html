@@ -1,0 +1,50 @@
+<div id="container">
+        <!-- <video></video> -->
+</div>
+<script src="../js/simplepeer.min.js"></script>
+<script>
+    var Peer = SimplePeer ;
+    var localstream = null;
+    
+    navigator.getUserMedia({ video: true, audio: true }, gotMedia, function () {})
+
+    function gotMedia (stream) {
+        localstream = stream;
+
+        var peerlocal1 = new Peer();
+        var peerlocal2 = new Peer();
+        var peerremote1 = new Peer({ initiator: true, stream: localstream })
+        var peerremote2 = new Peer({ initiator: true, stream: localstream })
+
+        peerremote1.on('signal', function (data) {
+            peerlocal1.signal(data)
+        })
+        peerremote2.on('signal', function (data) {
+            peerlocal2.signal(data)
+        })
+
+        peerlocal1.on('signal', function (data) {
+            peerremote1.signal(data)
+        })
+
+        peerlocal1.on('stream', function (stream) {
+            console.log("得到peerlocal1视频流............")
+            var video = document.createElement('video');
+            video.srcObject = stream;
+            document.getElementById('container').appendChild(video);
+            video.play()
+        })
+
+        peerlocal2.on('signal', function (data) {
+            peerremote2.signal(data)
+        })
+
+        peerlocal2.on('stream', function (stream) {
+            console.log("得到peerlocal2视频流............")
+            var video = document.createElement('video');
+            video.srcObject = stream;
+            document.getElementById('container').appendChild(video);
+            video.play()
+        })
+    }
+</script>

@@ -1,0 +1,46 @@
+<div id="container">
+        <!-- <video></video> -->
+</div>
+<script src="../js/simplepeer.min.js"></script>
+<script>
+    let Peer = SimplePeer ;
+    let remoteconnection = 5;
+    let localstream = null;
+    let localPeers = {};
+    let remotePeers = {};
+    let local_remote = {};
+    
+    navigator.getUserMedia({ video: true, audio: true }, gotMedia, function () {})
+
+    function gotMedia (stream) {
+        localstream = stream;
+
+        start(remoteconnection);
+    }
+
+    function start(num){
+        for(let x=1;x<=num;x++){
+            //1、面试者端创建peer
+            let peerremote = new Peer({ initiator: true, stream: localstream })
+            remotePeers[peerremote._id] = peerremote;
+            //2、管理端创建peer
+            let peerlocal = new Peer();
+            localPeers[peerlocal._id] = peerlocal;
+            local_remote[peerlocal._id] = peerremote._id;
+            localPeers[peerlocal._id].on('signal', function (data) {
+                remotePeers[peerremote._id].signal(data)
+            })
+            localPeers[peerlocal._id].on('stream', function (stream) {
+                console.log("得到peerlocal1视频流............")
+                let video = document.createElement('video');
+                video.srcObject = stream;
+                document.getElementById('container').appendChild(video);
+                video.play()
+            })
+            //3、面试者端拿到管理端的peerid后创建on('signal')
+            remotePeers[peerremote._id].on('signal', function (data) {
+                localPeers[peerlocal._id].signal(data)
+            })
+        }
+    }
+</script>
