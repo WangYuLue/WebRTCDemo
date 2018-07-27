@@ -34,6 +34,9 @@ io.on('connection', function (socket) {
   socket.on('offer',(d)=>{
     io_manage.emit('offer',d)
   })
+  socket.on('createwebRTC',(d)=>{
+    io_manage.emit('createwebRTC',d)
+  })
 });
 
 //管理端

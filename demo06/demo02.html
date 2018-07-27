@@ -33,21 +33,35 @@
     }
     
     function start () {
+
         peerConnection = new RTCPeerConnection(pc_config, pc_constraints);
+        peerConnection.id = 'interviewer',String(Math.random());
+
+        socket.emit('createwebRTC',{id:peerConnection.id});
+
         peerConnection.onicecandidate = (s)=> {
             console.log("触发了：",s);
             if(s.candidate){
-                socket.emit('candidate',s.candidate)
+                socket.emit('candidate',{
+                    data:s.candidate,
+                    id:peerConnection.id,
+                })
             } else {
                 console.log('onicecandidate 无效')
             }
         }
         peerConnection.addStream(stream);
-        peerConnection.createOffer().then((a)=>{
-            console.log('createoffer success',a)
-            peerConnection.setLocalDescription(a);
-            socket.emit('offer',a)
-        })
+        peerConnection.onnegotiationneeded = function () {
+            peerConnection.createOffer().then((a)=>{
+                console.log('createoffer success',a)
+                peerConnection.setLocalDescription(a);
+                socket.emit('offer',{
+                    data:a,
+                    id:peerConnection.id,
+                })
+            })
+        }
+        
     }
 
     socket.on('start',function(data){

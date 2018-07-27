@@ -6,7 +6,8 @@
 </div>
 <script src="../socket.io.js"></script>
 <script>
-    var peerConnection = null;
+    var peerConnections = {};
+    var remote_local = {};
     var stream = null;
     var socket = io('http://localhost:8989',{
         path:'/manage'
@@ -21,49 +22,67 @@
         console.log(data);
     });
 
-    peerConnection = new RTCPeerConnection(pc_config, pc_constraints);
+    
 
-    peerConnection.onicecandidate = (s)=> {
-        console.log("触发了：",s);
-        if(s.candidate){
-            socket.emit('candidate',s.candidate)
-        } else {
-            console.log('onicecandidate 无效')
+    function createPeerConnection (data) {
+
+        peerConnection = new RTCPeerConnection(pc_config, pc_constraints);
+        peerConnection.id = String(Math.random());
+
+        peerConnections[peerConnection.id] = peerConnection;
+        remote_local[data.id] = peerConnection.id;
+
+        peerConnection.onicecandidate = (s)=> {
+            console.log("触发了：",s);
+            if(s.candidate){
+                socket.emit('candidate',s.candidate)
+            } else {
+                console.log('onicecandidate 无效')
+            }
+        }
+        peerConnection.onaddstream = (d)=>{
+            console.log("添加视频流了：",d);
+            stream = d.stream;
+
+            var video = document.createElement('video') ;
+            video.autoplay = true ;
+            video.srcObject = d.stream;
+            document.getElementById('container').appendChild(video);
+        //    document.getElementById('v').srcObject = d.stream;
+        }
+
+        peerConnection.onremovestream = (d)=>{
+            console.log("视频流被删除",d)
+        }
+
+        peerConnection.onconnectionstatechange = (s) =>{
+            console.log("connectionstatechange:",s)
         }
     }
-    peerConnection.onaddstream = (d)=>{
-        console.log("添加视频流了：",d);
-        stream = d.stream;
 
-        var video = document.createElement('video') ;
-        video.autoplay = true ;
-        video.srcObject = d.stream;
-        document.getElementById('container').appendChild(video);
-    //    document.getElementById('v').srcObject = d.stream;
-    }
-
-    peerConnection.onremovestream = (d)=>{
-        console.log("视频流被删除",d)
-    }
-
-    peerConnection.onconnectionstatechange = (s) =>{
-        console.log("connectionstatechange:",s)
-    }
+    
 
     socket.on('candidate',function(data){
         console.log('add candidate',data);
-        peerConnection.addIceCandidate(data)
+        peerConnections[remote_local[data.id]].addIceCandidate(data.data)
     })
 
     socket.on('offer',function(data){
         console.log('offer request',data);
-        peerConnection.setRemoteDescription(data);
+
+        var peerConnection = peerConnections[remote_local[data.id]];
+        peerConnection.setRemoteDescription(data.data);
         peerConnection.createAnswer().then((s)=>{
             peerConnection.setLocalDescription(s);
-            console.log(s)
-            socket.emit('answer',s)
+            console.log(s);
+            socket.emit('answer',s);
         })
     })
 
     socket.emit('start')
+
+    socket.on('createwebRTC',function(data){
+        console.log("'''''''")
+        createPeerConnection(data);
+    });
 </script>
