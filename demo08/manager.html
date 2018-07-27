@@ -59,6 +59,9 @@
         peer.on('close', function (e) {
             console.log("connection close",e)
         })
+        peer.on('error', function (err) {
+            console.log("error")
+        })
         peers[peer._id] = peer;
     }
 </script>
