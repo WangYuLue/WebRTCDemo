@@ -15,11 +15,24 @@ io.on('connection', function (socket) {
     });
   })
 
+  //管理端促发该事件
+  socket.on('manager_reply',(data)=>{  
+    io.to(data.interviewer_socket_id).emit('interviewer_recive_reply',{
+      manager_socket_id : socket.id
+    });
+  })
+
+  //考生端促发该事件
+  socket.on('interviewer_start',()=>{  
+    socket.broadcast.emit('manager_start',{
+      interviewer_socket_id : socket.id
+    });
+  })
+
   //考生端促发该事件
   socket.on('interviewer_reply',(data)=>{  
     io.to(data.manager_socket_id).emit('manager_recive_reply',{
-      interviewer_socket_id : socket.id,
-      interviewer_peer_id:data.interviewer_peer_id
+      interviewer_socket_id : socket.id
     });
   })
 

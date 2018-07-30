@@ -5,7 +5,6 @@
 <script src="../js/socket.io.js"></script>
 <script>
     let socket = io('http://localhost:8999');
-    let Peer = SimplePeer ;
     let Peers = {};
     let remote_local = {}; //本地Peer和远程SocketIO的一一对照
 
@@ -15,9 +14,10 @@
 
     function gotMedia (stream) {
         localstream = stream;
-        let video = document.querySelector('video')
-        video.srcObject = stream
-        video.play()
+        let video = document.querySelector('video');
+        video.srcObject = stream;
+        video.play();
+        socket.emit("interviewer_start");  //本地视频流加载后，开始广播到管理端
     }
 
     socket.on("hello",function(data){
@@ -28,13 +28,18 @@
         Peers[remote_local[data.from_socket_id]].signal(data.data);
     })
 
-    socket.on("interviewer_start",function(data){
-        console.log("recive start",data);
+    socket.on("interviewer_recive_reply",function(data){
+        console.log('interviewer_recive_reply',data);
         createPeer(data);
     })
 
-    function createPeer(data) {
-        let peer = new Peer({ initiator: true, stream: localstream })
+    socket.on("interviewer_start",function(data){
+        console.log("recive start",data);
+        createPeer(data,true);
+    })
+
+    function createPeer(data,flag) {
+        let peer = new SimplePeer({ initiator: true, stream: localstream })
         Peers[peer._id] = peer;
         remote_local[data.manager_socket_id] = peer._id;
         Peers[peer._id].on('signal', function (d) {
@@ -43,9 +48,8 @@
                 data : d
             });
         })
-        var sendMsg = Object.assign(data,{
-            interviewer_peer_id : peer._id
-        })
-        socket.emit("interviewer_reply", sendMsg);
+        if(flag){
+            socket.emit("interviewer_reply", data);
+        }
     }
 </script>

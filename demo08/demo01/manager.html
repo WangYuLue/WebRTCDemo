@@ -3,8 +3,7 @@
 <script src="../js/simplepeer.min.js"></script>
 <script src="../js/socket.io.js"></script>
 <script>
-    let socket = io('http://localhost:8999');
-    let Peer = SimplePeer ;
+    let socket = io('http://localhost:8999')
     let Peers = {};
     let remote_local = {}; //本地Peer和远程SocketIO的一一对照
     
@@ -14,17 +13,23 @@
 
     socket.emit("manager_start")
 
+    socket.on("manager_start",function(data){
+        console.log("recive start",data);
+        createPeer(data,true);
+    })
+
     socket.on("manager_recive_reply",function(data){
         console.log('manager_recive_reply',data);
         createPeer(data);
     })
 
     socket.on("signal",function(data){
+        console.log("==============>",data)
         Peers[remote_local[data.from_socket_id]].signal(data.data);
     })
 
-    function createPeer(data) {
-        let peer = new Peer() ;
+    function createPeer(data,flag) {
+        let peer = new SimplePeer() ;
         Peers[peer._id] = peer;
         remote_local[data.interviewer_socket_id] = peer._id;
         Peers[peer._id].on('signal', function (d) {
@@ -40,5 +45,8 @@
             document.getElementById('container').appendChild(video);
             video.play()
         })
+        if(flag){
+            socket.emit("manager_reply", data);
+        }
     }
 </script>
