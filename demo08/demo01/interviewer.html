@@ -28,7 +28,7 @@
         Peers[remote_local[data.from_socket_id]].signal(data.data);
     })
 
-    socket.on("interview_start",function(data){
+    socket.on("interviewer_start",function(data){
         console.log("recive start",data);
         createPeer(data);
     })
@@ -46,6 +46,6 @@
         var sendMsg = Object.assign(data,{
             interviewer_peer_id : peer._id
         })
-        socket.emit("interview_reply", sendMsg);
+        socket.emit("interviewer_reply", sendMsg);
     }
 </script>

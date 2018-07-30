@@ -9,14 +9,14 @@ io.on('connection', function (socket) {
   socket.emit('hello','hello,world');
 
   //管理端促发该事件
-  socket.on('start',()=>{  
-    socket.broadcast.emit('interview_start',{
+  socket.on('manager_start',()=>{  
+    socket.broadcast.emit('interviewer_start',{
       manager_socket_id : socket.id
     });
   })
 
   //考生端促发该事件
-  socket.on('interview_reply',(data)=>{  
+  socket.on('interviewer_reply',(data)=>{  
     io.to(data.manager_socket_id).emit('manager_recive_reply',{
       interviewer_socket_id : socket.id,
       interviewer_peer_id:data.interviewer_peer_id
