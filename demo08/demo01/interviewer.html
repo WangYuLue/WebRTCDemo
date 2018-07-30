@@ -5,6 +5,7 @@
 <script src="../js/socket.io.js"></script>
 <script>
     let socket = io('http://localhost:8999');
+    var pc_config = {'iceServers': [{'url': 'turn:peer.eztest.org', 'username': 'eztest', 'credential': 'eztest-pass-1234'}]};
     let Peers = {};
     let remote_local = {}; //本地Peer和远程SocketIO的一一对照
 
@@ -39,10 +40,10 @@
     })
 
     function createPeer(data,flag) {
-        let peer = new SimplePeer({ initiator: true, stream: localstream })
+        let peer = new SimplePeer({ initiator: true, stream: localstream,config: pc_config})
         Peers[peer._id] = peer;
         remote_local[data.manager_socket_id] = peer._id;
-        Peers[peer._id].on('signal', function (d) {
+        peer.on('signal', function (d) {
             socket.emit("signal", {
                 to_socket_id : data.manager_socket_id,
                 data : d
