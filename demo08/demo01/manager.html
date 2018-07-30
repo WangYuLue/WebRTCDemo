@@ -3,7 +3,10 @@
 <script src="../js/simplepeer.min.js"></script>
 <script src="../js/socket.io.js"></script>
 <script>
-    let socket = io('http://localhost:8999')
+    //let socket = io('http://localhost:8999');
+    let socket = io('http://localhost:8888',{
+        path:'/monitor'
+    });
     let pc_config = {'iceServers': [{'url': 'turn:peer.eztest.org', 'username': 'eztest', 'credential': 'eztest-pass-1234'}]};
     let Peers = {};
     let remote_local = {}; //本地Peer和远程SocketIO的一一对照

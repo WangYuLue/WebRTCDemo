@@ -10,6 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "simple-peer": "^9.1.2",
-    "socket.io": "^2.1.1"
+    "socket.io": "^1.3.7"
   }
 }

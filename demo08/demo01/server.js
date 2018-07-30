@@ -6,7 +6,7 @@ app.listen(8999);
 
 io.on('connection', function (socket) {
   // console.log(io)
-  socket.emit('hello','hello,world');
+  socket.emit('hello','hello,world!!');
 
   //管理端促发该事件
   socket.on('manager_start',()=>{  

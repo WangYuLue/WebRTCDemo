@@ -4,11 +4,11 @@
 <script src="./js/simplepeer.min.js"></script>
 <script src="./js/socket.io.js"></script>
 <script>
-    var Peer = SimplePeer ;
-    var localstream = null ;
-    var peer = null ;
+    let Peer = SimplePeer ;
+    let localstream = null ;
+    let peer = null ;
 
-    var socket = io('http://localhost:8999');
+    let socket = io('http://localhost:8999');
 
     socket.on("start",start);
 
@@ -51,7 +51,7 @@
     }
 
     function playVideo (stream) {
-        var video = document.querySelector('video')
+        let video = document.querySelector('video')
         video.srcObject = stream
         video.play()
     }

@@ -4,11 +4,11 @@
 <script src="./js/simplepeer.min.js"></script>
 <script src="./js/socket.io.js"></script>
 <script>
-    var Peer = SimplePeer ;
-    var peers = {} ;
-    var local_remote_peers = {} ; //远程与本地的一一对照表
+    let Peer = SimplePeer ;
+    let peers = {} ;
+    let local_remote_peers = {} ; //远程与本地的一一对照表
 
-    var socket = io('http://localhost:8999',{
+    let socket = io('http://localhost:8999',{
         path:'/manage'
     });
 
@@ -34,7 +34,7 @@
     })
 
     function create (remote_data) {
-        var peer = new Peer()
+        let peer = new Peer()
         
         local_remote_peers[remote_data.id] = peer._id ;
 
@@ -45,9 +45,9 @@
 
         peer.on('stream', function (stream) {
             console.log(stream)
-            var video = document.createElement('video');
+            let video = document.createElement('video');
             // got remote video stream, now let's show it in a video tag
-            //var video = document.querySelector('video')
+            //let video = document.querySelector('video')
             video.srcObject = stream;
             document.getElementById('container').appendChild(video);
             video.play()
