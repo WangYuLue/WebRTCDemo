@@ -46,6 +46,12 @@
             document.getElementById('container').appendChild(video);
             video.play()
         })
+        peer.on('connect', function () {
+            console.log("连接成功。。。")
+        })
+        peer.on('data', function (data) {
+            console.log("收到发送的数据",JSON.parse(new TextDecoder("utf-8").decode(data)))
+        })
         if(flag){
             socket.emit("manager_reply", data);
         }

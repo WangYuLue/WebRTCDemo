@@ -49,6 +49,13 @@
                 data : d
             });
         })
+        peer.on('connect', function () {
+            console.log("连接成功。。。")
+            peer.send(JSON.stringify({
+                name: "wanger",
+                duration: 50
+            }))
+        })
         if(flag){
             socket.emit("interviewer_reply", data);
         }
