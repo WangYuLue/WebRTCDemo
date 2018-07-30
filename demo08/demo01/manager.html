@@ -3,23 +3,28 @@
 <script src="../js/simplepeer.min.js"></script>
 <script src="../js/socket.io.js"></script>
 <script>
-    //let socket = io('http://localhost:8999');
-    let socket = io('http://localhost:8888',{
-        path:'/monitor'
-    });
+    let socket = io('http://localhost:8999');
+    // let socket = io('http://localhost:8888',{
+    //     path:'/monitor'
+    // });
     let pc_config = {'iceServers': [{'url': 'turn:peer.eztest.org', 'username': 'eztest', 'credential': 'eztest-pass-1234'}]};
     let Peers = {};
     let remote_local = {}; //本地Peer和远程SocketIO的一一对照
+    let scheduleid = 123; //日程名，可以理解为房间名
     
     socket.on("hello",function(data){
         console.log(data);
     })
 
-    socket.emit("manager_start")
+    socket.emit("manager_start",{
+        scheduleid : scheduleid
+    });  //本地视频流加载后，开始广播到管理端;带上自己的日程ID；
 
     socket.on("manager_start",function(data){
         console.log("recive start",data);
-        createPeer(data,true);
+        if(data.scheduleid === scheduleid){  //若不是同一个房间，则不创建peer
+            createPeer(data,true);
+        }
     })
 
     socket.on("manager_recive_reply",function(data){

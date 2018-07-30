@@ -33,14 +33,14 @@
         
 
         //以下是连接到管理端的视频流
-        //let socket = io('http://localhost:8999');
-        let socket = io('http://localhost:8888',{
-            path:'/monitor'
-        });
+        let socket = io('http://localhost:8999');
+        // let socket = io('http://localhost:8888',{
+        //     path:'/monitor'
+        // });
         let pc_config = {'iceServers': [{'url': 'turn:peer.eztest.org', 'username': 'eztest', 'credential': 'eztest-pass-1234'}]};
         let Peers = {};
         let remote_local = {}; //本地Peer和远程SocketIO的一一对照
-
+        let scheduleid = 123; //日程名，可以理解为房间名
         let localstream = null;
 
         navigator.getUserMedia({ video: true, audio: true }, gotMedia, function () {})
@@ -50,7 +50,9 @@
             // let video = document.querySelector('video');
             // video.srcObject = stream;
             // video.play();
-            socket.emit("interviewer_start");  //本地视频流加载后，开始广播到管理端
+            socket.emit("interviewer_start",{
+                scheduleid : scheduleid
+            });  //本地视频流加载后，开始广播到管理端;带上自己的日程ID；
         }
 
         socket.on("hello",function(data){
@@ -68,7 +70,9 @@
 
         socket.on("interviewer_start",function(data){
             console.log("recive start",data);
-            createPeer(data,true);
+            if(data.scheduleid === scheduleid){ //若不是同一个房间，则不创建peer
+                createPeer(data,true);
+            }
         })
 
         function createPeer(data,flag) {

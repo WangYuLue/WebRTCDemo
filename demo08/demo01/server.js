@@ -9,9 +9,10 @@ io.on('connection', function (socket) {
   socket.emit('hello','hello,world!!');
 
   //管理端促发该事件
-  socket.on('manager_start',()=>{  
+  socket.on('manager_start',(data)=>{  
     socket.broadcast.emit('interviewer_start',{
-      manager_socket_id : socket.id
+      manager_socket_id : socket.id,
+      scheduleid : data.scheduleid
     });
   })
 
@@ -23,9 +24,10 @@ io.on('connection', function (socket) {
   })
 
   //考生端促发该事件
-  socket.on('interviewer_start',()=>{  
+  socket.on('interviewer_start',(data)=>{  
     socket.broadcast.emit('manager_start',{
-      interviewer_socket_id : socket.id
+      interviewer_socket_id : socket.id,
+      scheduleid : data.scheduleid
     });
   })
 
