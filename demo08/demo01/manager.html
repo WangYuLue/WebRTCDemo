@@ -25,7 +25,6 @@
     })
 
     socket.on("signal",function(data){
-        console.log("==============>",data)
         Peers[remote_local[data.from_socket_id]].signal(data.data);
     })
 
@@ -43,6 +42,7 @@
             console.log("得到远程视频流............")
             let video = document.createElement('video');
             video.srcObject = stream;
+            video.id = "remote_video_" + peer._id;
             document.getElementById('container').appendChild(video);
             video.play()
         })
@@ -73,6 +73,7 @@
                 delete remote_local[a];
             }
         }
+        document.getElementById("remote_video_" + peer._id).remove();
     }
 
     window.addEventListener("beforeunload",function () {  //在关闭或者刷新之前断开peer连接
