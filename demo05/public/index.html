@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>mediasoup测试</title>
+    <script src="/js/socketio.js"></script>
+    <script src="/js/mediasoup.js"></script>
+
+</head>
+<body>
+    <div>test mediasoup</div>
+    <video id='local_video'></video>
+</body>
+<script>
+    const socket = io.connect('/');
+    socket.on('connect', function(evt) {
+        console.log(Number(String(Date.now()).slice(-7)),'socket.io connected()');
+    });
+    socket.on('message', function(message) {
+        console.log(Number(String(Date.now()).slice(-7)),'message from server:', message);
+    });
+
+    const room = new mediasoupClient.Room({requestTimeout : 8000});
+
+    const peerName = "peer:"+Date.now();
+
+    let transport = undefined;
+
+    room.on('request', (request,success) => {
+        switch (request.target) {
+            case 'room':
+                break;
+            case 'peer':
+                request.peerName = peerName;
+                break;
+        }
+        console.log('client send request:' , request);
+        socket.emit('request', request, success);
+    });
+
+    room.on('newpeer', peer => {
+        console.log("新peer：", peer)
+    });
+
+    // send notification to server
+    room.on('notify', notification => {
+        switch (notification.target) {
+            case 'peer':
+                notification.peerName = peerName;
+                break;
+        }
+        console.log('client send notify:' , notification);
+        socket.emit('notify', notification);
+    });
+    
+    room.on('close', ()=>{
+        console.log("room close")
+    })
+
+    // recive notification from server
+    socket.on('notify', notification => {
+        console.log("recive notification from server",notification);
+        room.receiveNotification(notification);
+    });
+
+    //join remote server
+    room.join(peerName).then(peers => {
+        console.log("join success:",peers);
+        sendStream();
+    });
+    
+    //emitted when a new remote peer joins the room
+    room.on('newpeer', (peer)=>{
+        console.log('a new peer join the room:', peer)
+    })
+
+    //sending a stream
+    function sendStream () {
+        transport = room.createTransport('send');
+        const constraints = {
+            audio: false,
+            video: true,
+        };
+        navigator.mediaDevices
+            .getUserMedia(constraints)
+            .then(stream => {
+                const videoTrack = stream.getVideoTracks()[0];
+                room.createProducer(videoTrack)
+                    .send(transport)
+                    .then(res => {
+                        console.log("send transport callback",res)
+                    })
+            })
+    }
+    
+    //room.leave(); //会促发 room.on('notify', notification => {fn()}); 方法
+</script>
+</html>

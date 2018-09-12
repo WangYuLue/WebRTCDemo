@@ -79,7 +79,9 @@
         })
     })
 
-    socket.emit('start')
+    socket.emit('start','tt',()=>{
+        console.log("startttttttttttt")
+    })
 
     socket.on('createwebRTC',function(data){
         console.log("'''''''")

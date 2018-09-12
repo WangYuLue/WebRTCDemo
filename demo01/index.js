@@ -2,7 +2,7 @@ var app = require('http').createServer(hander);
 
 var io = require('socket.io')(app);
 
-app.listen(8888);
+app.listen(8889);
 
 var fs = require('fs')
 
@@ -26,7 +26,9 @@ io.on("connection",function(socket){
         var temp = io.to(data.rooms)
         temp.emit("send",data.data);
     })
-    socket.on('join',function(data){
-        socket.join(data)
+    socket.on('join',function(data,fn){
+        socket.join(data);
+        socket.to('aa').emit('ss','tt');
+        fn('aaaasssss');
     })
 })

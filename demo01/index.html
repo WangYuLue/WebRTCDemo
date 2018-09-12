@@ -9,9 +9,14 @@
     socket.on('msg',function(data){
         console.log(data)
     })
-    socket.emit('join',dd)
+    socket.emit('join',dd,function(str){
+        console.log("emitCallback:",str)
+    })
     socket.on('send',function(data){
         console.log("recive datas:"+data)
+    })
+    socket.on('ss',function(d){
+        console.log('>>>>>>>>>',d)
     })
 
     function send (v){

@@ -1,0 +1,9 @@
+<body>
+    <div>window.onhashchange可以监听到返回键事件</div>
+    <script>
+        history.pushState({aa:11}, "page 2", "test2.html");
+        window.onpopstate = function(event) {
+            console.log("hello",event)
+        }
+    </script>
+</body>
